@@ -94,7 +94,7 @@ arg_mges_sing_summary <- arg_all_mges %>%
   mutate(perc = n/n_total*100)
 
 # Plot ARG prevalence
-tiff("figures/arg_mge_prevalence.tiff", width = 4500, height = 6000, res = 200)
+tiff("figures/arg_mge_prevalence.tiff", width = 4500, height = 5750, res = 200)
 ggplot(arg_mges_sing_summary, aes(ARO.Name, perc, fill = mge)) +
   geom_bar(stat = "identity", position = "stack") +
   facet_grid(Drug.Class.alt ~ sample_type + Location, scale = "free", space = "free", switch = "both") +
