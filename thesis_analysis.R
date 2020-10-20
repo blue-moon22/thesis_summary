@@ -91,13 +91,15 @@ arg_mges_sing_summary <- arg_all_mges %>%
   group_by(Location, sample_type, ARO.Name, Drug.Class.alt, Resistance.Mechanism, AMR.Gene.Family, mge) %>%
   summarise(n = n_distinct(ID)) %>%
   inner_join(metadata_summary[metadata_summary$timepoint == 1,]) %>%
-  mutate(perc = n/n_total*100)
+  mutate(perc = n/n_total*100) %>%
+  mutate(labels = paste0(Drug.Class.alt, " - ", ARO.Name))
+arg_mges_sing_summary$labels <- factor(arg_mges_sing_summary$labels, levels = rev(levels(factor(arg_mges_sing_summary$labels))))
 
 # Plot ARG prevalence
-tiff("figures/arg_mge_prevalence.tiff", width = 4500, height = 5750, res = 200)
-ggplot(arg_mges_sing_summary, aes(ARO.Name, perc, fill = mge)) +
+tiff("figures/arg_mge_prevalence.tiff", width = 4000, height = 5750, res = 250)
+ggplot(arg_mges_sing_summary, aes(labels, perc, fill = mge)) +
   geom_bar(stat = "identity", position = "stack") +
-  facet_grid(Drug.Class.alt ~ sample_type + Location, scale = "free", space = "free", switch = "both") +
+  facet_grid(~ sample_type + Location, scale = "free", space = "free", switch = "both") +
   theme_bw() +
   coord_flip() +
   theme(axis.text.x = element_text(angle = 60, hjust=1),
@@ -106,7 +108,7 @@ ggplot(arg_mges_sing_summary, aes(ARO.Name, perc, fill = mge)) +
         legend.text = element_text(size = 16),
         legend.title = element_text(size = 16),
         legend.position="bottom") +
-  ylab("% samples") + xlab("ARG") +
+  ylab("% samples") + xlab("ARG Class - ARG") +
   scale_fill_manual("MGE", values = brewer.pal(length(unique(arg_mges_sing_summary$mge)), "Set2")) +
   scale_y_continuous(breaks = seq(0,100,20), limits = c(0,100))
 dev.off()  
@@ -193,12 +195,14 @@ grid.arrange(grobs = phage_list, nrow = 2, ncol = 4)
 dev.off()
 
 # Legend for antibiotic classes
-tiff("figures/antibiotic_class_legend.tiff", width = 1000, height = 750, res = 150)
+tiff("figures/antibiotic_class_legend.tiff", width = 2000, height = 750, res = 150)
 ggplot(arg_mges_use, aes(DDD.Per.1000.Pop, perc, colour = Drug.Class)) +
   geom_point(shape = 4, size = 2, stroke = 1.5) +
   theme_bw() +
   scale_colour_manual("Antibiotic Class", values = class_cols) +
-  theme(title = element_text(size = 14)) +
+  theme(title = element_text(size = 14), 
+        legend.text = element_text(size = 12), 
+        legend.position = "bottom") +
   ylab("% samples") + xlab("DDD Per 1000")
 dev.off()
 
